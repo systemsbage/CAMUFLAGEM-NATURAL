@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Natural Camouflage — Gym Suits</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --black: #080808;
+    --white: #f0ede6;
+    --green: #2ecc40;
+    --gold: #c8a85a;
+  }
+  *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+  html { scroll-behavior:smooth; }
+  body { background:var(--black); color:var(--white); font-family:'Cormorant Garamond',serif; overflow-x:hidden; cursor:none; }
+
+  .cursor { position:fixed; width:12px; height:12px; background:var(--green); border-radius:50%; pointer-events:none; z-index:9999; transform:translate(-50%,-50%); transition:width .3s,height .3s,background .3s; mix-blend-mode:screen; }
+  .cursor-ring { position:fixed; width:40px; height:40px; border:1px solid rgba(46,204,64,.5); border-radius:50%; pointer-events:none; z-index:9998; transform:translate(-50%,-50%); transition:width .3s,height .3s; }
+  .cursor.hover { width:20px; height:20px; background:var(--gold); }
+  .cursor-ring.hover { width:60px; height:60px; border-color:rgba(200,168,90,.4); }
+
+  body::before { content:''; position:fixed; inset:0; background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E"); pointer-events:none; z-index:1000; opacity:.4; }
+
+  nav { position:fixed; top:0; left:0; right:0; z-index:500; padding:1.5rem 3rem; display:flex; justify-content:space-between; align-items:center; background:linear-gradient(to bottom,rgba(8,8,8,.9),transparent); }
+  .nav-logo { font-family:'Cinzel Decorative',serif; font-size:.75rem; letter-spacing:.3em; color:var(--white); text-decoration:none; }
+  .nav-links { display:flex; gap:2.5rem; list-style:none; }
+  .nav-links a { font-family:'Space Mono',monospace; font-size:.65rem; letter-spacing:.15em; color:var(--white); text-decoration:none; text-transform:uppercase; opacity:.7; transition:opacity .3s; }
+  .nav-links a:hover { opacity:1; }
+
+  .hero { position:relative; height:100vh; display:flex; flex-direction:column; justify-content:center; align-items:center; overflow:hidden; }
+  .hero-bg { position:absolute; inset:0; background:radial-gradient(ellipse 80% 60% at 50% 50%,#0d1f0d 0%,#080808 100%); }
+  #particles { position:absolute; inset:0; opacity:.6; }
+  .hero-eyebrow { font-family:'Space Mono',monospace; font-size:.6rem; letter-spacing:.5em; color:var(--green); text-transform:uppercase; margin-bottom:1.5rem; opacity:0; animation:fadeUp 1s .3s forwards; position:relative; z-index:2; }
+  .hero-title { font-family:'Cinzel Decorative',serif; font-size:clamp(3rem,8vw,7rem); font-weight:900; line-height:.95; text-align:center; position:relative; z-index:2; opacity:0; animation:fadeUp 1s .5s forwards; }
+  .hero-title .line-green { color:var(--green); display:block; }
+  .hero-title .line-gold { color:var(--gold); display:block; font-style:italic; font-size:.55em; letter-spacing:.08em; }
+  .hero-sub { font-style:italic; font-size:1.1rem; color:rgba(240,237,230,.5); margin-top:1.5rem; letter-spacing:.05em; opacity:0; animation:fadeUp 1s .8s forwards; z-index:2; position:relative; }
+  .hero-cta { margin-top:3rem; display:flex; gap:1rem; opacity:0; animation:fadeUp 1s 1s forwards; z-index:2; position:relative; }
+  .btn-primary { font-family:'Space Mono',monospace; font-size:.6rem; letter-spacing:.2em; text-transform:uppercase; padding:1rem 2.5rem; background:var(--green); color:#080808; border:none; cursor:none; font-weight:700; transition:transform .3s,box-shadow .3s; text-decoration:none; display:inline-block; }
+  .btn-primary:hover { transform:translateY(-2px); box-shadow:0 20px 60px rgba(46,204,64,.3); }
+  .btn-ghost { font-family:'Space Mono',monospace; font-size:.6rem; letter-spacing:.2em; text-transform:uppercase; padding:1rem 2.5rem; border:1px solid rgba(240,237,230,.3); color:var(--white); cursor:none; transition:border-color .3s,color .3s; text-decoration:none; display:inline-block; background:transparent; }
+  .btn-ghost:hover { border-color:var(--gold); color:var(--gold); }
+  .scroll-hint { position:absolute; bottom:2.5rem; left:50%; transform:translateX(-50%); display:flex; flex-direction:column; align-items:center; gap:.5rem; opacity:0; animation:fadeIn 1s 1.5s forwards; z-index:2; }
+  .scroll-line { width:1px; height:60px; background:linear-gradient(to bottom,var(--green),transparent); animation:scrollLine 2s ease-in-out infinite; }
+  .scroll-text { font-family:'Space Mono',monospace; font-size:.5rem; letter-spacing:.3em; color:rgba(240,237,230,.3); text-transform:uppercase; }
+
+  .marquee-section { overflow:hidden; border-top:1px solid rgba(255,255,255,.06); border-bottom:1px solid rgba(255,255,255,.06); padding:1rem 0; background:rgba(46,204,64,.03); }
+  .marquee-track { display:flex; animation:marquee 20s linear infinite; width:max-content; }
+  .marquee-item { font-family:'Cinzel Decorative',serif; font-size:.7rem; letter-spacing:.4em; padding:0 3rem; color:rgba(240,237,230,.3); text-transform:uppercase; white-space:nowrap; }
+  .marquee-item span { color:var(--green); margin:0 1rem; }
+
+  .section-header { padding:6rem 3rem 3rem; display:flex; justify-content:space-between; align-items:flex-end; }
+  .section-label { font-family:'Space Mono',monospace; font-size:.6rem; letter-spacing:.4em; color:var(--green); text-transform:uppercase; margin-bottom:.75rem; }
+  .section-title { font-family:'Cinzel Decorative',serif; font-size:clamp(2rem,4vw,3.5rem); font-weight:700; line-height:1.1; }
+  .section-count { font-family:'Cormorant Garamond',serif; font-style:italic; font-size:4rem; color:rgba(240,237,230,.08); font-weight:300; }
+
+  /* PRODUCT GRID */
+  .product-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1px; background:rgba(255,255,255,.04); margin:0 3rem; }
+  .product-card { position:relative; background:var(--black); overflow:hidden; aspect-ratio:3/4; cursor:none; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; }
+
+  /* THUMBNAIL */
+  .thumb-bg { position:absolute; inset:0; background-size:cover; background-position:center top; transition:transform .6s cubic-bezier(.25,.46,.45,.94),opacity .5s; }
+  .product-card:hover .thumb-bg { transform:scale(1.04); opacity:0; }
+
+  /* VIDEO */
+  .video-wrapper { position:absolute; inset:0; overflow:hidden; pointer-events:none; }
+  .video-wrapper iframe { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:177.78%; height:100%; min-width:100%; min-height:56.25%; border:none; opacity:0; transition:opacity .5s; }
+  .product-card:hover .video-wrapper iframe { opacity:1; }
+
+  /* COLOR TINT */
+  .color-tint { position:absolute; inset:0; opacity:.5; transition:opacity .5s; }
+  .product-card:hover .color-tint { opacity:0; }
+
+  /* BOTTOM GRADIENT */
+  .card-grad { position:absolute; bottom:0; left:0; right:0; height:60%; background:linear-gradient(to top,rgba(8,8,8,.97) 0%,rgba(8,8,8,.5) 55%,transparent 100%); z-index:2; }
+
+  /* PLAY ICON */
+  .play-icon { position:absolute; top:50%; left:50%; transform:translate(-50%,-55%) scale(.8); width:52px; height:52px; border-radius:50%; border:1.5px solid rgba(255,255,255,.4); display:flex; align-items:center; justify-content:center; z-index:3; opacity:0; transition:opacity .4s,transform .4s,border-color .3s; background:rgba(8,8,8,.3); backdrop-filter:blur(4px); }
+  .play-icon svg { width:18px; height:18px; fill:#fff; margin-left:3px; }
+  .product-card:hover .play-icon { opacity:1; transform:translate(-50%,-50%) scale(1); border-color:var(--green); }
+
+  /* INFO */
+  .product-info { position:relative; z-index:4; padding:0 1.5rem 1.5rem; width:100%; transform:translateY(6px); transition:transform .4s; }
+  .product-card:hover .product-info { transform:translateY(0); }
+  .product-concept { font-family:'Cinzel Decorative',serif; font-size:1.4rem; font-weight:700; margin-bottom:.2rem; }
+  .product-name { font-family:'Space Mono',monospace; font-size:.52rem; letter-spacing:.18em; text-transform:uppercase; color:rgba(240,237,230,.45); }
+  .product-price { font-family:'Cormorant Garamond',serif; font-size:1rem; color:var(--gold); margin-top:.4rem; }
+
+  .color-dot { position:absolute; top:1.2rem; right:1.2rem; width:10px; height:10px; border-radius:50%; z-index:4; }
+  .card-line { position:absolute; bottom:0; left:0; height:2px; width:0; background:var(--green); transition:width .5s cubic-bezier(.25,.46,.45,.94); z-index:5; }
+  .product-card:hover .card-line { width:100%; }
+
+  /* MODAL */
+  .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,.93); z-index:800; display:flex; align-items:center; justify-content:center; opacity:0; pointer-events:none; transition:opacity .4s; backdrop-filter:blur(10px); }
+  .modal-overlay.open { opacity:1; pointer-events:all; }
+  .modal-inner { position:relative; width:min(420px,88vw); aspect-ratio:9/16; }
+  .modal-inner iframe { width:100%; height:100%; border:none; border-radius:4px; }
+  .modal-close { position:absolute; top:-3rem; right:0; font-family:'Space Mono',monospace; font-size:.6rem; letter-spacing:.2em; color:rgba(240,237,230,.5); cursor:none; background:none; border:none; text-transform:uppercase; transition:color .3s; }
+  .modal-close:hover { color:var(--white); }
+  .modal-label { position:absolute; bottom:-2.5rem; left:0; font-family:'Cinzel Decorative',serif; font-size:1rem; color:var(--gold); }
+
+  /* MANIFESTO */
+  .manifesto { padding:8rem 3rem; display:grid; grid-template-columns:1fr 1fr; gap:6rem; align-items:center; }
+  .manifesto-visual { position:relative; aspect-ratio:1; display:flex; align-items:center; justify-content:center; }
+  .circle-anim { position:absolute; border-radius:50%; border:1px solid rgba(46,204,64,.15); animation:pulse 4s ease-in-out infinite; }
+  .circle-1 { width:80%; height:80%; }
+  .circle-2 { width:60%; height:60%; animation-delay:.7s; border-color:rgba(200,168,90,.12); }
+  .circle-3 { width:40%; height:40%; animation-delay:1.4s; border-color:rgba(46,204,64,.2); }
+  .manifesto-cn { font-family:'Cinzel Decorative',serif; font-size:6rem; font-weight:900; color:transparent; -webkit-text-stroke:1px rgba(46,204,64,.4); z-index:2; position:relative; line-height:1; text-align:center; }
+  .manifesto-cn span { color:var(--green); -webkit-text-stroke:0; }
+  .manifesto-quote { font-style:italic; font-size:clamp(2rem,3.5vw,3rem); line-height:1.3; margin-bottom:2rem; }
+  .manifesto-quote em { color:var(--gold); font-style:normal; }
+  .manifesto-body { font-size:1rem; line-height:1.8; color:rgba(240,237,230,.5); margin-bottom:2.5rem; }
+  .manifesto-values { display:flex; gap:1rem; flex-wrap:wrap; }
+  .value-tag { font-family:'Space Mono',monospace; font-size:.55rem; letter-spacing:.2em; padding:.6rem 1.2rem; border:1px solid rgba(46,204,64,.3); color:var(--green); text-transform:uppercase; }
+
+  /* CONCEPTS */
+  .concepts { padding:2rem 3rem 6rem; }
+  .concepts-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:rgba(255,255,255,.04); }
+  .concept-card { background:var(--black); padding:3rem 2rem; position:relative; overflow:hidden; cursor:none; }
+  .concept-card::before { content:''; position:absolute; inset:0; background:linear-gradient(135deg,rgba(46,204,64,.05) 0%,transparent 60%); opacity:0; transition:opacity .4s; }
+  .concept-card:hover::before { opacity:1; }
+  .concept-number { font-family:'Space Mono',monospace; font-size:.55rem; color:var(--green); letter-spacing:.2em; margin-bottom:2rem; }
+  .concept-word { font-family:'Cinzel Decorative',serif; font-size:1.5rem; font-weight:700; margin-bottom:1rem; transition:color .3s; }
+  .concept-card:hover .concept-word { color:var(--gold); }
+  .concept-desc { font-size:.9rem; line-height:1.7; color:rgba(240,237,230,.4); transition:color .3s; }
+  .concept-card:hover .concept-desc { color:rgba(240,237,230,.6); }
+  .concept-line { position:absolute; left:0; top:0; width:2px; height:0; background:var(--green); transition:height .5s cubic-bezier(.25,.46,.45,.94); }
+  .concept-card:hover .concept-line { height:100%; }
+
+  .stats { display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:rgba(255,255,255,.04); }
+  .stat-item { background:var(--black); padding:3rem 2.5rem; text-align:center; }
+  .stat-number { font-family:'Cinzel Decorative',serif; font-size:3rem; color:var(--green); font-weight:900; display:block; margin-bottom:.5rem; }
+  .stat-label { font-family:'Space Mono',monospace; font-size:.55rem; letter-spacing:.2em; text-transform:uppercase; color:rgba(240,237,230,.3); }
+
+  footer { padding:5rem 3rem 3rem; display:grid; grid-template-columns:2fr 1fr 1fr 1fr; gap:3rem; }
+  .footer-brand { font-family:'Cinzel Decorative',serif; font-size:1.5rem; font-weight:900; margin-bottom:1rem; }
+  .footer-brand span { color:var(--green); }
+  .footer-tagline { font-style:italic; color:rgba(240,237,230,.4); font-size:.9rem; line-height:1.6; margin-bottom:1.5rem; }
+  .footer-location { font-family:'Space Mono',monospace; font-size:.55rem; letter-spacing:.2em; color:var(--green); text-transform:uppercase; }
+  .footer-col-title { font-family:'Space Mono',monospace; font-size:.55rem; letter-spacing:.2em; text-transform:uppercase; color:rgba(240,237,230,.4); margin-bottom:1.5rem; }
+  .footer-links { list-style:none; display:flex; flex-direction:column; gap:.75rem; }
+  .footer-links a { font-size:.9rem; color:rgba(240,237,230,.6); text-decoration:none; transition:color .3s; }
+  .footer-links a:hover { color:var(--gold); }
+  .footer-bottom { margin:3rem 3rem 0; padding:2rem 0; border-top:1px solid rgba(255,255,255,.06); display:flex; justify-content:space-between; align-items:center; }
+  .footer-copy { font-family:'Space Mono',monospace; font-size:.55rem; letter-spacing:.15em; color:rgba(240,237,230,.2); text-transform:uppercase; }
+
+  .fab { position:fixed; bottom:2rem; right:2rem; width:48px; height:48px; border-radius:50%; background:var(--green); display:flex; align-items:center; justify-content:center; cursor:none; z-index:50; animation:float 3s ease-in-out infinite; box-shadow:0 0 30px rgba(46,204,64,.4); transition:transform .3s,box-shadow .3s; text-decoration:none; }
+  .fab:hover { transform:scale(1.2); box-shadow:0 0 50px rgba(46,204,64,.6); }
+
+  .reveal { opacity:0; transform:translateY(30px); transition:opacity .8s,transform .8s; }
+  .reveal.visible { opacity:1; transform:translateY(0); }
+  .reveal-delay-1 { transition-delay:.1s; }
+  .reveal-delay-2 { transition-delay:.2s; }
+  .reveal-delay-3 { transition-delay:.3s; }
+
+  @keyframes fadeUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+  @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+  @keyframes marquee { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+  @keyframes scrollLine { 0%,100%{transform:scaleY(1);opacity:1} 50%{transform:scaleY(.5);opacity:.4} }
+  @keyframes pulse { 0%,100%{transform:scale(1);opacity:.5} 50%{transform:scale(1.04);opacity:1} }
+  @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+
+  @media(max-width:900px) {
+    .product-grid { grid-template-columns:1fr 1fr; margin:0 1.5rem; }
+    .manifesto { grid-template-columns:1fr; padding:4rem 1.5rem; gap:3rem; }
+    .manifesto-visual { display:none; }
+    .concepts-grid { grid-template-columns:1fr 1fr; }
+    .stats { grid-template-columns:repeat(2,1fr); }
+    footer { grid-template-columns:1fr; padding:3rem 1.5rem 2rem; }
+    .section-header { padding:4rem 1.5rem 2rem; flex-direction:column; align-items:flex-start; gap:1rem; }
+    .concepts { padding:2rem 1.5rem 4rem; }
+    .footer-bottom { flex-direction:column; gap:1rem; margin:0 1.5rem; }
+    nav { padding:1rem 1.5rem; }
+    .nav-links { display:none; }
+  }
+  @media(max-width:500px) {
+    .product-grid { grid-template-columns:1fr; }
+    .concepts-grid { grid-template-columns:1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal">
+  <div class="modal-inner">
+    <button class="modal-close" id="modalClose">✕ Fechar</button>
+    <iframe id="modalIframe" src="" allow="autoplay; fullscreen" allowfullscreen></iframe>
+    <div class="modal-label" id="modalLabel"></div>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-logo">NC</a>
+  <ul class="nav-links">
+    <li><a href="#colecao">Coleção</a></li>
+    <li><a href="#manifesto">Manifesto</a></li>
+    <li><a href="#conceitos">Conceitos</a></li>
+    <li><a href="https://www.camuflagemnatural.com.br" target="_blank">Loja</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="hero">
+  <div class="hero-bg"></div>
+  <canvas id="particles"></canvas>
+  <p class="hero-eyebrow">Bagé, RS — Brasil · Est. 2023</p>
+  <h1 class="hero-title">
+    <span class="line-green">Natural</span>
+    <span>Camouflage</span>
+    <span class="line-gold">Gym Suits</span>
+  </h1>
+  <p class="hero-sub">Veste quem domina o próprio destino.</p>
+  <div class="hero-cta">
+    <a href="#colecao" class="btn-primary">Ver Coleção</a>
+    <a href="#manifesto" class="btn-ghost">Manifesto</a>
+  </div>
+  <div class="scroll-hint">
+    <div class="scroll-line"></div>
+    <span class="scroll-text">Scroll</span>
+  </div>
+</section>
+
+<!-- MARQUEE -->
+<div class="marquee-section">
+  <div class="marquee-track">
+    <span class="marquee-item">Win <span>✦</span></span>
+    <span class="marquee-item">Conquer <span>✦</span></span>
+    <span class="marquee-item">Discipline <span>✦</span></span>
+    <span class="marquee-item">Focus <span>✦</span></span>
+    <span class="marquee-item">Natural Camouflage <span>✦</span></span>
+    <span class="marquee-item">Gym Suits <span>✦</span></span>
+    <span class="marquee-item">Stylish & Comfortable <span>✦</span></span>
+    <span class="marquee-item">Win <span>✦</span></span>
+    <span class="marquee-item">Conquer <span>✦</span></span>
+    <span class="marquee-item">Discipline <span>✦</span></span>
+    <span class="marquee-item">Focus <span>✦</span></span>
+    <span class="marquee-item">Natural Camouflage <span>✦</span></span>
+    <span class="marquee-item">Gym Suits <span>✦</span></span>
+    <span class="marquee-item">Stylish & Comfortable <span>✦</span></span>
+  </div>
+</div>
+
+<!-- COLLECTION -->
+<section id="colecao">
+  <div class="section-header reveal">
+    <div>
+      <p class="section-label">Coleção Classic</p>
+      <h2 class="section-title">T-Shirts<br>Oversized</h2>
+    </div>
+    <span class="section-count">05</span>
+  </div>
+
+  <div class="product-grid">
+
+    <!-- PRETO -->
+    <div class="product-card reveal" data-video="anr7KO-4tuU" data-label="Win — Preto">
+      <div class="thumb-bg" style="background-image:url('https://i.ytimg.com/vi/anr7KO-4tuU/maxresdefault.jpg');background-color:#111;"></div>
+      <div class="color-tint" style="background:linear-gradient(180deg,#111 0%,transparent 50%);"></div>
+      <div class="video-wrapper">
+        <iframe data-src="https://www.youtube.com/embed/anr7KO-4tuU?autoplay=1&mute=1&loop=1&playlist=anr7KO-4tuU&controls=0&modestbranding=1&rel=0&playsinline=1" allow="autoplay"></iframe>
+      </div>
+      <div class="card-grad"></div>
+      <span class="color-dot" style="background:#333;box-shadow:0 0 10px #555;"></span>
+      <div class="play-icon"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      <div class="product-info">
+        <p class="product-concept">Win</p>
+        <p class="product-name">T-shirt Oversized · Preto</p>
+        <p class="product-price">R$ 89,90</p>
+      </div>
+      <div class="card-line"></div>
+    </div>
+
+    <!-- AZUL -->
+    <div class="product-card reveal reveal-delay-1" data-video="vIzaefWVabI" data-label="Conquer — Azul Marinho">
+      <div class="thumb-bg" style="background-image:url('https://i.ytimg.com/vi/vIzaefWVabI/maxresdefault.jpg');background-color:#0f1e3a;"></div>
+      <div class="color-tint" style="background:linear-gradient(180deg,#0f1e3a 0%,transparent 50%);"></div>
+      <div class="video-wrapper">
+        <iframe data-src="https://www.youtube.com/embed/vIzaefWVabI?autoplay=1&mute=1&loop=1&playlist=vIzaefWVabI&controls=0&modestbranding=1&rel=0&playsinline=1" allow="autoplay"></iframe>
+      </div>
+      <div class="card-grad"></div>
+      <span class="color-dot" style="background:#2d4a7a;box-shadow:0 0 10px #2d4a7a;"></span>
+      <div class="play-icon"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      <div class="product-info">
+        <p class="product-concept">Conquer</p>
+        <p class="product-name">T-shirt Oversized · Azul Marinho</p>
+        <p class="product-price">R$ 89,90</p>
+      </div>
+      <div class="card-line"></div>
+    </div>
+
+    <!-- VERDE -->
+    <div class="product-card reveal reveal-delay-2" data-video="4FnBpwTnT2Y" data-label="Discipline — Verde Oliva">
+      <div class="thumb-bg" style="background-image:url('https://i.ytimg.com/vi/4FnBpwTnT2Y/maxresdefault.jpg');background-color:#182410;"></div>
+      <div class="color-tint" style="background:linear-gradient(180deg,#182410 0%,transparent 50%);"></div>
+      <div class="video-wrapper">
+        <iframe data-src="https://www.youtube.com/embed/4FnBpwTnT2Y?autoplay=1&mute=1&loop=1&playlist=4FnBpwTnT2Y&controls=0&modestbranding=1&rel=0&playsinline=1" allow="autoplay"></iframe>
+      </div>
+      <div class="card-grad"></div>
+      <span class="color-dot" style="background:#5b7a3c;box-shadow:0 0 10px #5b7a3c;"></span>
+      <div class="play-icon"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      <div class="product-info">
+        <p class="product-concept">Discipline</p>
+        <p class="product-name">T-shirt Oversized · Verde Oliva</p>
+        <p class="product-price">R$ 89,90</p>
+      </div>
+      <div class="card-line"></div>
+    </div>
+
+    <!-- ROSA -->
+    <div class="product-card reveal reveal-delay-1" data-video="9fHXaHJrlHk" data-label="Focus — Rosa">
+      <div class="thumb-bg" style="background-image:url('https://i.ytimg.com/vi/9fHXaHJrlHk/maxresdefault.jpg');background-color:#2e0a1a;"></div>
+      <div class="color-tint" style="background:linear-gradient(180deg,#2e0a1a 0%,transparent 50%);"></div>
+      <div class="video-wrapper">
+        <iframe data-src="https://www.youtube.com/embed/9fHXaHJrlHk?autoplay=1&mute=1&loop=1&playlist=9fHXaHJrlHk&controls=0&modestbranding=1&rel=0&playsinline=1" allow="autoplay"></iframe>
+      </div>
+      <div class="card-grad"></div>
+      <span class="color-dot" style="background:#d4478a;box-shadow:0 0 10px #d4478a;"></span>
+      <div class="play-icon"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      <div class="product-info">
+        <p class="product-concept">Focus</p>
+        <p class="product-name">T-shirt Oversized · Rosa</p>
+        <p class="product-price">R$ 89,90</p>
+      </div>
+      <div class="card-line"></div>
+    </div>
+
+    <!-- ROXO -->
+    <div class="product-card reveal reveal-delay-2" data-video="wZABZ1Ui1pw" data-label="Ascend — Roxo">
+      <div class="thumb-bg" style="background-image:url('https://i.ytimg.com/vi/wZABZ1Ui1pw/maxresdefault.jpg');background-color:#140820;"></div>
+      <div class="color-tint" style="background:linear-gradient(180deg,#140820 0%,transparent 50%);"></div>
+      <div class="video-wrapper">
+        <iframe data-src="https://www.youtube.com/embed/wZABZ1Ui1pw?autoplay=1&mute=1&loop=1&playlist=wZABZ1Ui1pw&controls=0&modestbranding=1&rel=0&playsinline=1" allow="autoplay"></iframe>
+      </div>
+      <div class="card-grad"></div>
+      <span class="color-dot" style="background:#7a3faa;box-shadow:0 0 10px #7a3faa;"></span>
+      <div class="play-icon"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      <div class="product-info">
+        <p class="product-concept">Ascend</p>
+        <p class="product-name">T-shirt Oversized · Roxo</p>
+        <p class="product-price">R$ 89,90</p>
+      </div>
+      <div class="card-line"></div>
+    </div>
+
+    <!-- CTA CARD -->
+    <div class="product-card reveal reveal-delay-3" style="background:rgba(46,204,64,.04);border:1px solid rgba(46,204,64,.1);justify-content:center;align-items:center;">
+      <div style="text-align:center;padding:2rem;">
+        <p style="font-family:'Space Mono',monospace;font-size:.55rem;letter-spacing:.3em;color:var(--green);text-transform:uppercase;margin-bottom:1rem;">Nova coleção em breve</p>
+        <p style="font-family:'Cinzel Decorative',serif;font-size:1.5rem;font-weight:700;line-height:1.2;margin-bottom:1.5rem;">Mais<br>conceitos<br>chegando</p>
+        <a href="https://www.instagram.com/natural_camouflage/" target="_blank" class="btn-primary" style="font-size:.55rem;padding:.8rem 1.8rem;">Seguir @natural_camouflage</a>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- MANIFESTO -->
+<section class="manifesto" id="manifesto">
+  <div class="manifesto-visual">
+    <div class="circle-anim circle-1"></div>
+    <div class="circle-anim circle-2"></div>
+    <div class="circle-anim circle-3"></div>
+    <div class="manifesto-cn">C<span>N</span></div>
+  </div>
+  <div class="manifesto-text reveal">
+    <p class="section-label">Manifesto</p>
+    <h2 class="manifesto-quote">Não é camuflagem para <em>esconder</em> — é para <em>pertencer</em>.</h2>
+    <p class="manifesto-body">Natural Camouflage nasceu da ideia de que roupa é mais que tecido. É a armadura que você veste antes de entrar em campo. Cada peça carrega um conceito, uma intenção, uma palavra que você quer incorporar no dia a dia.</p>
+    <div class="manifesto-values">
+      <span class="value-tag">Win</span><span class="value-tag">Conquer</span>
+      <span class="value-tag">Discipline</span><span class="value-tag">Focus</span>
+      <span class="value-tag">Stylish</span><span class="value-tag">Comfortable</span>
+    </div>
+  </div>
+</section>
+
+<!-- CONCEPTS -->
+<section class="concepts" id="conceitos">
+  <div class="concepts-grid">
+    <div class="concept-card reveal"><div class="concept-line"></div><p class="concept-number">01</p><h3 class="concept-word">Win</h3><p class="concept-desc">A vitória não acontece por acaso. É construída rep a rep, dia a dia. Veste quem sabe que vai ganhar.</p></div>
+    <div class="concept-card reveal reveal-delay-1"><div class="concept-line"></div><p class="concept-number">02</p><h3 class="concept-word">Conquer</h3><p class="concept-desc">Conquistar vai além do pódio. É sobre território — mental, físico, social. Domine cada espaço que pisar.</p></div>
+    <div class="concept-card reveal reveal-delay-2"><div class="concept-line"></div><p class="concept-number">03</p><h3 class="concept-word">Discipline</h3><p class="concept-desc">A diferença entre quem sonha e quem realiza tem um nome. Disciplina não é punição — é liberdade.</p></div>
+    <div class="concept-card reveal reveal-delay-3"><div class="concept-line"></div><p class="concept-number">04</p><h3 class="concept-word">Focus</h3><p class="concept-desc">O mundo quer sua atenção. Escolha sabiamente onde colocar a sua. Quem foca, avança.</p></div>
+  </div>
+</section>
+
+<!-- STATS -->
+<div class="stats">
+  <div class="stat-item reveal"><span class="stat-number" data-target="5">0</span><span class="stat-label">Cores disponíveis</span></div>
+  <div class="stat-item reveal reveal-delay-1"><span class="stat-number" data-target="4">0</span><span class="stat-label">Conceitos por coleção</span></div>
+  <div class="stat-item reveal reveal-delay-2"><span class="stat-number" data-target="100">0</span><span class="stat-label">% Algodão Premium</span></div>
+  <div class="stat-item reveal reveal-delay-3"><span class="stat-number" data-target="1">0</span><span class="stat-label">Origem · Bagé RS</span></div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div>
+    <div class="footer-brand">Natural <span>Camouflage</span></div>
+    <p class="footer-tagline">Veste quem domina o próprio destino.<br>Stylish and Comfortable.</p>
+    <p class="footer-location">📍 Bagé, RS — Brasil</p>
+  </div>
+  <div>
+    <p class="footer-col-title">Navegação</p>
+    <ul class="footer-links">
+      <li><a href="#colecao">Coleção</a></li>
+      <li><a href="#manifesto">Manifesto</a></li>
+      <li><a href="#conceitos">Conceitos</a></li>
+      <li><a href="https://www.camuflagemnatural.com.br" target="_blank">Loja Online</a></li>
+    </ul>
+  </div>
+  <div>
+    <p class="footer-col-title">Redes</p>
+    <ul class="footer-links">
+      <li><a href="https://www.instagram.com/natural_camouflage/" target="_blank">Instagram</a></li>
+      <li><a href="https://www.youtube.com/@CamulagemNatural" target="_blank">YouTube</a></li>
+      <li><a href="#">WhatsApp</a></li>
+    </ul>
+  </div>
+  <div>
+    <p class="footer-col-title">Coleção</p>
+    <ul class="footer-links">
+      <li><a href="#">Win · Preto</a></li>
+      <li><a href="#">Conquer · Marinho</a></li>
+      <li><a href="#">Discipline · Oliva</a></li>
+      <li><a href="#">Focus · Rosa</a></li>
+      <li><a href="#">Ascend · Roxo</a></li>
+    </ul>
+  </div>
+</footer>
+<div class="footer-bottom">
+  <span class="footer-copy">© 2024 Natural Camouflage · Todos os direitos reservados</span>
+  <span class="footer-copy">www.camuflagemnatural.com.br</span>
+</div>
+
+<a href="https://www.instagram.com/natural_camouflage/" target="_blank" class="fab" title="Instagram">
+  <svg viewBox="0 0 24 24" width="22" height="22" fill="#080808"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+</a>
+
+<script>
+// CURSOR
+const cursor=document.getElementById('cursor'),ring=document.getElementById('cursorRing');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cursor.style.left=mx+'px';cursor.style.top=my+'px';});
+(function animRing(){rx+=(mx-rx)*.12;ry+=(my-ry)*.12;ring.style.left=rx+'px';ring.style.top=ry+'px';requestAnimationFrame(animRing);})();
+document.querySelectorAll('a,button,.product-card,.concept-card').forEach(el=>{
+  el.addEventListener('mouseenter',()=>{cursor.classList.add('hover');ring.classList.add('hover');});
+  el.addEventListener('mouseleave',()=>{cursor.classList.remove('hover');ring.classList.remove('hover');});
+});
+
+// PARTICLES
+const canvas=document.getElementById('particles'),ctx=canvas.getContext('2d');
+let W,H,parts=[];
+function resizeCanvas(){W=canvas.width=canvas.offsetWidth;H=canvas.height=canvas.offsetHeight;}
+resizeCanvas();window.addEventListener('resize',resizeCanvas);
+class P{constructor(){this.reset();}reset(){this.x=Math.random()*W;this.y=Math.random()*H;this.size=Math.random()*1.5+.3;this.sx=(Math.random()-.5)*.3;this.sy=-Math.random()*.4-.1;this.o=Math.random()*.6+.1;this.g=Math.random()>.7;}update(){this.x+=this.sx;this.y+=this.sy;if(this.y<-5)this.reset();}draw(){ctx.beginPath();ctx.arc(this.x,this.y,this.size,0,Math.PI*2);ctx.fillStyle=this.g?`rgba(46,204,64,${this.o})`:`rgba(200,168,90,${this.o*.5})`;ctx.fill();}}
+for(let i=0;i<120;i++)parts.push(new P());
+(function anim(){ctx.clearRect(0,0,W,H);parts.forEach(p=>{p.update();p.draw();});requestAnimationFrame(anim);})();
+
+// SCROLL REVEAL
+const obs=new IntersectionObserver(e=>{e.forEach(x=>{if(x.isIntersecting)x.target.classList.add('visible');});},{threshold:.1});
+document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+
+// COUNTER
+function animCount(el){const t=+el.dataset.target;let c=0;const s=t/(1500/16);const timer=setInterval(()=>{c=Math.min(c+s,t);el.textContent=t===1?'1':Math.floor(c)+(t===100?'%':'+');if(c>=t)clearInterval(timer);},16);}
+const sObs=new IntersectionObserver(e=>{e.forEach(x=>{if(x.isIntersecting){animCount(x.target);sObs.unobserve(x.target);}});},{threshold:.5});
+document.querySelectorAll('.stat-number').forEach(el=>sObs.observe(el));
+
+// PARALLAX
+window.addEventListener('scroll',()=>{
+  const y=window.scrollY;
+  const t=document.querySelector('.hero-title');
+  const s=document.querySelector('.hero-sub');
+  if(t)t.style.transform=`translateY(${y*.3}px)`;
+  if(s)s.style.transform=`translateY(${y*.2}px)`;
+});
+
+// VIDEO HOVER — lazy load
+document.querySelectorAll('.product-card[data-video]').forEach(card=>{
+  const iframe=card.querySelector('iframe[data-src]');
+  let loaded=false;
+  card.addEventListener('mouseenter',()=>{
+    if(!loaded&&iframe){iframe.src=iframe.dataset.src;loaded=true;}
+  });
+});
+
+// MODAL — click opens full video
+const modal=document.getElementById('modal');
+const modalIframe=document.getElementById('modalIframe');
+const modalLabel=document.getElementById('modalLabel');
+const modalClose=document.getElementById('modalClose');
+
+document.querySelectorAll('.product-card[data-video]').forEach(card=>{
+  card.addEventListener('click',()=>{
+    modalIframe.src=`https://www.youtube.com/embed/${card.dataset.video}?autoplay=1&rel=0&modestbranding=1`;
+    modalLabel.textContent=card.dataset.label;
+    modal.classList.add('open');
+    document.body.style.overflow='hidden';
+  });
+});
+function closeModal(){modal.classList.remove('open');modalIframe.src='';document.body.style.overflow='';}
+modalClose.addEventListener('click',closeModal);
+modal.addEventListener('click',e=>{if(e.target===modal)closeModal();});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
+</script>
+</body>
+</html>
